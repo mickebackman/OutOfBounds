@@ -7,6 +7,7 @@
     <string name="title_activity_arhandler">ARHandlerActivity</string>
     <string name="title_activity_play">Play</string>
     <string name="playbutton">Play golf</string>
+    <string name="mapbutton">Set hole position</string>
     <string name="title_activity_map">Map</string>
 
 
