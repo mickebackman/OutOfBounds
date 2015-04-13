@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="LOCAL" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.2.1" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/.." />
+            <option value="$PROJECT_DIR$/../Examples_CloudPlugin/Template" />
+            <option value="$PROJECT_DIR$/../Examples_SDK/CustomRenderer" />
+            <option value="$PROJECT_DIR$/../Examples_SDK/Example" />
+            <option value="$PROJECT_DIR$/../Templates_SDK/Template" />
+            <option value="$PROJECT_DIR$/../Templates_SDK/TemplateAREL" />
+            <option value="$PROJECT_DIR$" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
+

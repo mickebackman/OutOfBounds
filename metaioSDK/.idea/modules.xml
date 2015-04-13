@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Examples_CloudPlugin/Template/CloudPluginTemplate.iml" filepath="$PROJECT_DIR$/../Examples_CloudPlugin/Template/CloudPluginTemplate.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MetaioSDK.iml" filepath="$PROJECT_DIR$/MetaioSDK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Examples_SDK/CustomRenderer/MetaioSDK_CustomRenderer.iml" filepath="$PROJECT_DIR$/../Examples_SDK/CustomRenderer/MetaioSDK_CustomRenderer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Examples_SDK/Example/MetaioSDK_Examples.iml" filepath="$PROJECT_DIR$/../Examples_SDK/Example/MetaioSDK_Examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Templates_SDK/TemplateAREL/MetaioSDK_TemplateAREL.iml" filepath="$PROJECT_DIR$/../Templates_SDK/TemplateAREL/MetaioSDK_TemplateAREL.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Templates_SDK/Template/MetaioSDK_TemplateJava.iml" filepath="$PROJECT_DIR$/../Templates_SDK/Template/MetaioSDK_TemplateJava.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../_Android.iml" filepath="$PROJECT_DIR$/../_Android.iml" />
+    </modules>
+  </component>
+</project>
+
