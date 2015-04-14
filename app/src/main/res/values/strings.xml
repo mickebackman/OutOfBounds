@@ -9,6 +9,7 @@
     <string name="playbutton">Play golf</string>
     <string name="mapbutton">Set hole position</string>
     <string name="title_activity_map">Map</string>
-
+    <string name="title_activity_maps">Map</string>
+    <string name="maptext">GPS-data will be shown here</string>
 
 </resources>
