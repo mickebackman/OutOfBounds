@@ -1,8 +1,11 @@
 package se.mikaelbackman.outofbounds;
 
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -11,6 +14,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private LatLng markerLocation = null;
+    private LatLng gpsLocation = null;
+
+    private TextView gpsLocationText = null;
+    private TextView markerLocationText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +52,42 @@ public class MapsActivity extends FragmentActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
             }
         }
     }
+
+    private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
+        @Override
+        public void onMyLocationChange(Location location) {
+            LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+            gpsLocationText = (TextView) findViewById(R.id.gpsView);
+            gpsLocationText.setText("GPS coord: " + loc.latitude + " , " + loc.longitude);
+            gpsLocation = loc;
+            if(mMap != null){
+                float zoom = mMap.getCameraPosition().zoom;
+                if(zoom < 10.0f) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 16.0f));
+                }
+            }
+        }
+    };
+    private GoogleMap.OnMapLongClickListener myLongClickListener = new GoogleMap.OnMapLongClickListener(){
+        @Override
+        public void onMapLongClick(LatLng latLng) {
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(latLng));
+            markerLocation = latLng;
+            markerLocationText = (TextView) findViewById(R.id.markerView);
+            markerLocationText.setText("Marker coord: " + latLng.latitude + " , " + latLng.longitude);
+           // RoutePlanner routePlanner = new RoutePlanner(gpsLocation, markerLocation, RoutePlanner.MODE_WALKING);
+           // drawRoute(routePlanner);
+        }
+    };
+
 
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
@@ -60,6 +96,10 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationChangeListener(myLocationChangeListener);
+        mMap.setOnMapLongClickListener(myLongClickListener);
+
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
     }
 }
