@@ -21,64 +21,47 @@ import com.metaio.tools.io.AssetsManager;
 import java.io.IOException;
 
 
-public class Play extends ActionBarActivity implements SensorEventListener {
+public class Play extends ActionBarActivity {
 
     /**
      * Task that will extract all the assets
      */
     private AssetsExtracter mTask;
-    private SensorManager manager;
-    private Sensor accelerometer;
-    private Sensor magnetometer;
-    private float[] accelerometerData = new float[3];
-    private float[] magnetometerData = new float[3];
-    private boolean accSet = false;
-    private boolean magSet = false;
-
-
+    private Double ball_latitude, ball_longitude, flag_latitude, flag_longitude;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
-        manager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        Intent intent = getIntent();
+        ball_latitude = intent.getDoubleExtra("ball_latitude", 0);
+        ball_longitude = intent.getDoubleExtra("ball_longitude", 0);
+        flag_latitude = intent.getDoubleExtra("flag_latitude", 0);
+        flag_longitude = intent.getDoubleExtra("flag_longitude", 0);
+        Log.i("GPS_play_recieved" , ("Ball lat: " + ball_latitude.toString() + " long: " + ball_longitude.toString() + "\n Flag lat: " + flag_latitude.toString() + " long: " + flag_longitude.toString()));
 
 
         // Enable metaio SDK debug log messages based on build configuration
         MetaioDebug.enableLogging(BuildConfig.DEBUG);
 
         // extract all the assets
-       // mTask = new AssetsExtracter();
-       // mTask.execute(0);
+        mTask = new AssetsExtracter();
+        mTask.execute(0);
 
         // start a new activity that handles AR content
         // TODO: måste göra något med onresume eller liknande, kanske onstop i main activity... får error om rätt layout laddas.
-      //  Intent intent = new Intent(this, ARHandlerActivity.class);
-       // startActivity(intent);
+        Intent intentsend = new Intent(this, ARHandlerActivity.class);
+        intentsend.putExtra("balllat", ball_latitude);
+        intentsend.putExtra("balllong", ball_longitude);
+        intentsend.putExtra("flaglat", flag_latitude);
+        intentsend.putExtra("flaglong", flag_longitude);
+        Log.i("GPS_play_sent" , ("Ball lat: " + ball_latitude.toString() + " long: " + ball_longitude.toString() + "\n Flag lat: " + flag_latitude.toString() + " long: " + flag_longitude.toString()));
+
+        startActivity(intentsend);
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if (sensorEvent.sensor == accelerometer) {
-            accelerometerData[0] = sensorEvent.values[0];
-            accelerometerData[1] = sensorEvent.values[1];
-            accelerometerData[2] = sensorEvent.values[2];
-            accSet = true;
-        } else if (sensorEvent.sensor == magnetometer) {
-            magnetometerData[0] = sensorEvent.values[0];
-            magnetometerData[1] = sensorEvent.values[1];
-            magnetometerData[2] = sensorEvent.values[2];
-            magSet = true;
-        }
-    }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
 
 
     /**
@@ -88,9 +71,8 @@ public class Play extends ActionBarActivity implements SensorEventListener {
 
     protected void onResume() {
         super.onResume();
-        manager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-        manager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_FASTEST);
     }
+
     private class AssetsExtracter extends AsyncTask<Integer, Integer, Boolean>
     {
 
@@ -102,17 +84,17 @@ public class Play extends ActionBarActivity implements SensorEventListener {
         @Override
         protected Boolean doInBackground(Integer... params)
         {
-        //    try
-        //    {
-                // Extract all assets and overwrite existing files if debug build
-          //      AssetsManager.extractAllAssets(getApplicationContext(), BuildConfig.DEBUG);
-          //  }
-          //  catch (IOException e)
-          //  {
-           //     MetaioDebug.log(Log.ERROR, "Error extracting assets: "+e.getMessage());
-           //     MetaioDebug.printStackTrace(Log.ERROR, e);
-           //     return false;
-           // }
+           try
+            {
+             //   Extract all assets and overwrite existing files if debug build
+           AssetsManager.extractAllAssets(getApplicationContext(), BuildConfig.DEBUG);
+            }
+           catch (IOException e)
+            {
+             MetaioDebug.log(Log.ERROR, "Error extracting assets: "+e.getMessage());
+              MetaioDebug.printStackTrace(Log.ERROR, e);
+                return false;
+           }
 
             return true;
         }
@@ -123,8 +105,13 @@ public class Play extends ActionBarActivity implements SensorEventListener {
             if (result)
             {
                 // Start AR Activity on success
-            //    Intent intent = new Intent(getApplicationContext(), ARHandlerActivity.class);
-               // startActivity(intent);
+                // TODO: är det här den skickar dubbelt?
+                Intent intent = new Intent(getApplicationContext(), ARHandlerActivity.class);
+                intent.putExtra("balllat", ball_latitude);
+                intent.putExtra("balllong", ball_longitude);
+                intent.putExtra("flaglat", flag_latitude);
+                intent.putExtra("flaglong", flag_longitude);
+                startActivity(intent);
             }
             else
             {
@@ -161,19 +148,4 @@ public class Play extends ActionBarActivity implements SensorEventListener {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getData(View view){
-        if (accSet && magSet) {
-            TextView text = (TextView) findViewById(R.id.data);
-            text.setText("");
-            float xda = accelerometerData[0];
-            float yda = accelerometerData[1];
-            float zda = accelerometerData[2];
-            float xdm = magnetometerData[0];
-            float ydm = magnetometerData[1];
-            float zdm = magnetometerData[2];
-            accSet = false;
-            magSet = false;
-            text.setText("Xa " + xda + "\n" + " Ya " + yda + "\n" + " Za " + zda + "\n" + " Xm " + xdm + "\n" + " Ym " + ydm + "\n" + " Zm " + zdm);
-        }
-    }
 }

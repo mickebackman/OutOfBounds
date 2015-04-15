@@ -7,28 +7,5 @@
     tools:context="se.mikaelbackman.ar_test_metaio.Play"
     >
 
-    <TextView android:text="@string/golf" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/button"
-        android:layout_alignEnd="@+id/button"
-        android:id="@+id/textView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Swing"
-        android:id="@+id/button"
-        android:onClick="getData"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/data"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textSize="25sp" />
 
 </RelativeLayout>

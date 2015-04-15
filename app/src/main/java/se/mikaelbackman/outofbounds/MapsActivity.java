@@ -1,8 +1,10 @@
 package se.mikaelbackman.outofbounds;
 
+import android.content.Intent;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -10,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.metaio.sdk.SensorsComponentAndroid;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -22,6 +25,7 @@ public class MapsActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
@@ -31,6 +35,18 @@ public class MapsActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+    public void playGolf(View view){
+        //TODO kolla så nålen är släppt och om inte visa en text att den ska släppas.
+
+        if ((gpsLocation != null) && (markerLocation != null)) {
+            Intent intent = new Intent(this, Play.class);
+            intent.putExtra("ball_latitude", gpsLocation.latitude);
+            intent.putExtra("ball_longitude", gpsLocation.longitude);
+            intent.putExtra("flag_latitude", markerLocation.latitude);
+            intent.putExtra("flag_longitude", markerLocation.longitude);
+            startActivity(intent);
+        }
     }
 
     /**
@@ -64,8 +80,8 @@ public class MapsActivity extends FragmentActivity {
         @Override
         public void onMyLocationChange(Location location) {
             LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-            gpsLocationText = (TextView) findViewById(R.id.gpsView);
-            gpsLocationText.setText("GPS coord: " + loc.latitude + " , " + loc.longitude);
+          //  gpsLocationText = (TextView) findViewById(R.id.gpsView);
+          //  gpsLocationText.setText("GPS coord: " + loc.latitude + " , " + loc.longitude);
             gpsLocation = loc;
             if(mMap != null){
                 float zoom = mMap.getCameraPosition().zoom;
@@ -81,8 +97,8 @@ public class MapsActivity extends FragmentActivity {
             mMap.clear();
             mMap.addMarker(new MarkerOptions().position(latLng));
             markerLocation = latLng;
-            markerLocationText = (TextView) findViewById(R.id.markerView);
-            markerLocationText.setText("Marker coord: " + latLng.latitude + " , " + latLng.longitude);
+          //  markerLocationText = (TextView) findViewById(R.id.markerView);
+          //  markerLocationText.setText("Marker coord: " + latLng.latitude + " , " + latLng.longitude);
            // RoutePlanner routePlanner = new RoutePlanner(gpsLocation, markerLocation, RoutePlanner.MODE_WALKING);
            // drawRoute(routePlanner);
         }
