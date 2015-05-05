@@ -1,19 +1,15 @@
 package se.mikaelbackman.outofbounds;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.metaio.cloud.plugin.util.MetaioCloudUtils;
 import com.metaio.sdk.ARELInterpreterAndroidJava;
@@ -25,7 +21,6 @@ import com.metaio.sdk.jni.IAnnotatedGeometriesGroup;
 import com.metaio.sdk.jni.IGeometry;
 import com.metaio.sdk.jni.IMetaioSDKCallback;
 import com.metaio.sdk.jni.IRadar;
-import com.metaio.sdk.jni.ISensorsComponent;
 import com.metaio.sdk.jni.ImageStruct;
 import com.metaio.sdk.jni.LLACoordinate;
 import com.metaio.sdk.jni.Rotation;
@@ -37,59 +32,42 @@ import java.io.File;
 import java.util.concurrent.locks.Lock;
 
 
-public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements  SensorsComponentAndroid.Callback,LocationListener {
+//TODO - Om vi är inom 5 meter från bollen ska vi kunna slå genom att göra billboarden clickable och ändra text?
+// då ska vi
+public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements SensorsComponentAndroid.Callback {
 
-
-    //LLACoordinate lund = new LLACoordinate(55.7047, 13.191, 0,0);
-    //LLACoordinate micke = new LLACoordinate(55.7112, 13.1871,0,0);
-    //LLACoordinate backis = new LLACoordinate(55.7104, 13.1686,0,0);
-    protected LocationManager locationManager;
-    String provider;
-    private LocationListener locationListener;
-    private double longitude, latitude;
 
     private IAnnotatedGeometriesGroup mAnnotatedGeometriesGroup;
-
     private MyAnnotatedGeometriesGroupCallback mAnnotatedGeometriesGroupCallback;
-    public SensorsComponentAndroid sensors;
-    public double ball_lat, ball_long, flag_lat,flag_long;
+
+    public double ball_lat, ball_long, flag_lat, flag_long;
     private LLACoordinate ball,flag;
-
-
-    /**
-     * Geometries
-     */
-    private IGeometry mFlagGeo, mBallGeo, mLundGeo, mBackisGeo, mMickeGeo, mIkdcGeo;
-
+    private IGeometry mFlagGeo, mBallGeo;
     private IRadar mRadar;
+    TextView distancetext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_arhandler);
 
-        //setContentView(R.layout.activity_arhandler);
-       /*
-        if (savedInstanceState != null) {*/
 
-            Intent intent = getIntent();
-           // if (intent.hasExtra("balllat")) {
-           ball_lat = intent.getDoubleExtra("balllat", 0);
-           ball_long = intent.getDoubleExtra("balllong", 0);
-           flag_lat = intent.getDoubleExtra("flaglat", 0);
-           flag_long = intent.getDoubleExtra("flaglong", 0);
-                Log.i("GPS_ARHand_rec", ("Ball lat: " + ball_lat + " long: " + ball_long
-                        + "\n Flag lat: " + flag_lat + " long: " + flag_long));
-          //  }
-     //   }
+        Intent intent = getIntent();
+        ball_lat = intent.getDoubleExtra("balllat", 0);
+        ball_long = intent.getDoubleExtra("balllong", 0);
+        flag_lat = intent.getDoubleExtra("flaglat", 0);
+        flag_long = intent.getDoubleExtra("flaglong", 0);
+           Log.i("GPS_ARHand_rec", ("Ball lat: " + ball_lat + " long: " + ball_long
+           + "\n Flag lat: " + flag_lat + " long: " + flag_long));
 
         // Set GPS tracking configuration
-        boolean result = metaioSDK.setTrackingConfiguration("GPS", false);
+        boolean result = metaioSDK.setTrackingConfiguration("GPS");
         MetaioDebug.log("Tracking data loaded: " + result);
 
-        //nytt
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0,this);
+        distancetext = (TextView) findViewById(R.id.holedistance);
+
     }
+
 
     @Override
     protected void onDestroy()
@@ -109,18 +87,26 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         super.onDestroy();
     }
 
+    public void onCancelClick(View view){
+        //TODO - när vi klickar på krysset i AR-handler måste den skicka tillbaka oss till mapsactivity och spara data.
+
+    }
+
     @Override
     public void onDrawFrame()
     {
         if (metaioSDK != null && mSensors != null)
         {
             SensorValues sensorValues = mSensors.getSensorValues();
+            mSensors.getLocation();
 
-
-            //Nytt
-            ISensorsComponent aSensors = metaioSDK.getRegisteredSensorsComponent();
-            aSensors.start(ISensorsComponent.SENSOR_LOCATION);
-
+            if (flag != null) {
+                Double doubledist = MetaioCloudUtils.getDistanceBetweenTwoCoordinates(flag, mSensors.getLocation());
+                int dist = (int)(doubledist + 0.5d);
+               //TODO får inte sätta texten så här. måste hitta något annat sätt.
+                distancetext = (TextView) findViewById(R.id.holedistance);
+                distancetext.setText("Distance to hole is: " + dist);
+            }
 
             float heading = 0.0f;
             if (sensorValues.hasAttitude())
@@ -134,7 +120,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
                 heading = (float)(-Math.atan2(v.getY(), v.getX()) - Math.PI / 2.0);
             }
 
-            // Geos för locations. Kanske inte sätter värdena här ens.
+            // Geometrices för locations. Kanske inte sätter värdena här ens.
             IGeometry geos[] = new IGeometry[] {mFlagGeo,mBallGeo};
             Rotation rot = new Rotation((float)(Math.PI / 2.0), 0.0f, -heading);
             for (IGeometry geo : geos)
@@ -150,17 +136,12 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         super.onDrawFrame();
     }
 
-    public void onButtonClick(View v)
-    {
-        finish();
-    }
 
     @Override
     protected int getGUILayout() {
 
-        // TODO: Måste göra layout för detta
-        //return R.layout.activity_arhandler;
-        return 0;
+        return R.layout.activity_arhandler;
+
     }
 
     @Override
@@ -170,7 +151,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
 
     @Override
     // tells which tracking(s) should be used
-    // Logiken för trackingen
     protected void loadContents() {
 
         mAnnotatedGeometriesGroup = metaioSDK.createAnnotatedGeometriesGroup();
@@ -186,11 +166,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         metaioSDK.setRendererClippingPlaneLimits(10, 220000);
 
 
-      /*  LLACoordinate lund = new LLACoordinate(55.7047, 13.191, 0,0);
-        LLACoordinate micke = new LLACoordinate(55.7112, 13.1871,0,0);
-        LLACoordinate backis = new LLACoordinate(55.7104, 13.1686,0,0);
-        LLACoordinate ikdc = new LLACoordinate(55.7151, 13.2113,0,0);
-*/
         ball = new LLACoordinate(ball_lat, ball_long, 0,0);
         Log.i("GPS_coordinates_ball", ball.toString());
 
@@ -200,50 +175,11 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
 
 
         //Lägger till POIS och 3dmodellerna som vi ska ha som objekt.
-
-     /*   mLundGeo = createPOIGeometry(lund);
-        mAnnotatedGeometriesGroup.addGeometry(mLundGeo, "Lund");
-
-        mMickeGeo = createPOIGeometry(micke);
-        mAnnotatedGeometriesGroup.addGeometry(mMickeGeo, "Micke");
-
-        mBackisGeo = createPOIGeometry(backis);
-        mAnnotatedGeometriesGroup.addGeometry(mBackisGeo, "Bäckis");
-
-        mIkdcGeo = createPOIGeometry(ikdc);
-        mAnnotatedGeometriesGroup.addGeometry(mIkdcGeo, "IKDC");
-        */
-
         mBallGeo = createPOIGeometry(ball);
         mAnnotatedGeometriesGroup.addGeometry(mBallGeo, "Ball");
 
-        mFlagGeo = createPOIGeometry(flag);
+        mFlagGeo = createFlagGeometry(flag);
         mAnnotatedGeometriesGroup.addGeometry(mFlagGeo, "Flag");
-
-       // Lägger till en golfboll på ikdc's location
-      //  File golfball = AssetsManager.getAssetPathAsFile(getApplicationContext(), "golfball_lowpoly.obj");
-
-      //  if (golfball != null)
-        //{
-          //  mIkdcGeo = metaioSDK.createGeometry(golfball);
-       //     mMickeGeo = metaioSDK.createGeometry(golfball);
-         //   if (mIkdcGeo != null || mMickeGeo != null)
-         //   {
-       //         mIkdcGeo.setTranslationLLA(ikdc);
-           //     mIkdcGeo.setLLALimitsEnabled(true);
-             //   mIkdcGeo.setScale(500);
-            //    mMickeGeo.setTranslationLLA(ikdc);
-              //  mMickeGeo.setLLALimitsEnabled(true);
-               // mMickeGeo.setScale(500);
-           // }
-            //else
-            //{
-          //      MetaioDebug.log(Log.ERROR, "Error loading geometry: " + golfball );
-         //   }
-      //  }
-
-
-
 
         // create radar
         mRadar = metaioSDK.createRadar();
@@ -255,29 +191,30 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
                 mRadar.setObjectsDefaultTexture(defaulttexture);
             }
             else {
-                Log.i("MyTag", "Får null på filhämtning till objecttexture");
+                Log.i("MyTag", "Får null på filhämtning till objecttexture i radarcreation");
             }
             mRadar.setRelativeToScreen(IGeometry.ANCHOR_TL);
 
             // lägger till object till radarn
-           /* mRadar.add(mIkdcGeo);
-            mRadar.add(mBackisGeo);
-            mRadar.add(mMickeGeo);
-            mRadar.add(mLundGeo);
-            */
             mRadar.add(mBallGeo);
             mRadar.add(mFlagGeo);
         } else {
-            Log.i("MyTag", "Får null på filhämtning i background");
+            Log.i("MyTag", "Får null på filhämtning i background i radarcreation");
         }
 
 
     }
 
 
+
+
     @Override
     protected void onGeometryTouched(final IGeometry geometry) {
         MetaioDebug.log("Geometry selected: " + geometry);
+
+        if (MetaioCloudUtils.getDistanceBetweenTwoCoordinates(flag, mSensors.getLocation()) < 5.0d){
+
+        }
 
         mSurfaceView.queueEvent(new Runnable()
         {
@@ -307,12 +244,31 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             IGeometry geo = metaioSDK.createGeometry(path);
             geo.setTranslationLLA(lla);
             geo.setLLALimitsEnabled(true);
-            geo.setScale(100);
+            geo.setScale(50);
             return geo;
         }
         else
         {
             MetaioDebug.log(Log.ERROR, "Missing files for POI geometry");
+            return null;
+        }
+    }
+
+    private IGeometry createFlagGeometry(LLACoordinate lla) {
+        final File path =
+                AssetsManager.getAssetPathAsFile(getApplicationContext(),
+                        "Flag.obj");
+        if (path != null)
+        {
+            IGeometry geo = metaioSDK.createGeometry(path);
+            geo.setTranslationLLA(lla);
+            geo.setLLALimitsEnabled(true);
+            geo.setScale(5000);
+            return geo;
+        }
+        else
+        {
+            MetaioDebug.log(Log.ERROR, "Missing files for flag geometry");
             return null;
         }
     }
@@ -339,68 +295,11 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onGravitySensorChanged(float[] floats) {
 
-    }
+
 
     @Override
-    public void onHeadingSensorChanged(float[] floats) {
-
-    }
-
-    @Override
-    public void onLocationSensorChanged(LLACoordinate llaCoordinate) {
-
-    }
-
-    @Override
-
-    //nytt
-    public void onLocationChanged(Location location){
-        final LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-                Log.i("GPS_LOCATION", "Lat: " + latitude +"Long: " + longitude);
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                Log.d("Latitude","status");
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Log.d("Latitude","enable");
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Log.d("Latitude","disable");
-            }
-        };
-
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
-    //nytt plus resume
-    @Override
-    protected void onPause() {
+  protected void onPause() {
         super.onPause();
 
         // remove callback
@@ -420,6 +319,25 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             mSensors.registerCallback(this);
             // mSensorsManager.resume();
         }
+
+    }
+
+    @Override
+    public void onGravitySensorChanged(float[] floats) {
+
+    }
+
+    @Override
+    public void onHeadingSensorChanged(float[] floats) {
+
+    }
+
+    @Override
+    public void onLocationSensorChanged(LLACoordinate llaCoordinate) {
+        Log.i("GPS_LOC_CHANGE", "location sensor changed" + llaCoordinate.toString());
+        mAnnotatedGeometriesGroup.triggerAnnotationUpdate(mBallGeo);
+        mAnnotatedGeometriesGroup.triggerAnnotationUpdate(mFlagGeo);
+        mAnnotatedGeometriesGroup.registerCallback(mAnnotatedGeometriesGroupCallback);
 
     }
 
@@ -447,25 +365,28 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         @Override
         public IGeometry loadUpdatedAnnotation(IGeometry geometry, Object userData, IGeometry existingAnnotation)
         {
+            Log.i("GPS_loadup_enter", "Går in i load updatedannotation med userdata " + (String) userData + " existingannotation " + existingAnnotation);
             if (userData == null)
             {
                 return null;
             }
 
-            if (existingAnnotation != null)
+            /*if (existingAnnotation != null)
             {
                 // We don't update the annotation if e.g. distance has changed
                 return existingAnnotation;
             }
+            */
 
             String title = (String)userData; // as passed to addGeometry
             LLACoordinate location = geometry.getTranslationLLA();
             float distance = (float) MetaioCloudUtils.getDistanceBetweenTwoCoordinates(location, mSensors.getLocation());
+            Log.i("GPS_loadup_dist", "Distance  mellan location och msensor.getlocaion " + distance);
             Bitmap thumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             try
             {
                 texture =
-                        ARELInterpreterAndroidJava.getAnnotationImageForPOI(title, title, distance, "5", thumbnail,
+                        ARELInterpreterAndroidJava.getAnnotationImageForPOI(title, title, distance, "0", thumbnail,
                                 null,
                                 metaioSDK.getRenderSize(), ARHandlerActivity.this,
                                 mPaint, inOutCachedBitmaps, inOutCachedAnnotationBackgroundIndex, textureHash);
@@ -509,6 +430,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
                 }
             }
 
+            Log.i("GPS_loadup_exit", "Går ut i load updatedannotation med userdata " + (String) userData + " existingannotation " + existingAnnotation);
             return resultGeometry;
         }
 
