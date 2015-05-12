@@ -249,7 +249,6 @@ public class ARELActivity extends ARViewActivity
 					MetaioDebug.log(Log.ERROR, "No AREL scene file passed to the intent");
 				}
 
-				// TODO: set custom radar properties
 				mARELInterpreter.setRadarProperties(IGeometry.ANCHOR_TL, new Vector3d(0f), new Vector3d(1f));
 
 				// show AREL webview and start handling touch events

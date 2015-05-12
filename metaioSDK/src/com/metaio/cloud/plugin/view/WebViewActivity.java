@@ -114,7 +114,6 @@ public class WebViewActivity extends Activity
 			// enable plugins before java script
 			settings.setPluginState(PluginState.ON);
 
-			// TODO test these two settings with a big webpage (cafe lotty?)
 			settings.setLoadWithOverviewMode(true);
 			settings.setUseWideViewPort(true);
 			// enable javascript and zoom controls

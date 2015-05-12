@@ -5,6 +5,7 @@ import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,13 +23,17 @@ public class MapsActivity extends FragmentActivity {
 
     private TextView gpsLocationText = null;
     private TextView markerLocationText = null;
-
+    Button playbutton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+        playbutton = (Button) findViewById(R.id.playbutton);
+        playbutton.setEnabled(false);
+        playbutton.setClickable(false);
+
     }
 
     @Override
@@ -37,9 +42,11 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
     public void playGolf(View view){
-        //TODO kolla så nålen är släppt och om inte visa en text att den ska släppas.
+        //TODO minska ner fragment med storlek på google maps och lägga till text "Place hole"
 
         if ((gpsLocation != null) && (markerLocation != null)) {
+            playbutton.setEnabled(false);
+            playbutton.setClickable(false);
             Intent intent = new Intent(this, Play.class);
             intent.putExtra("ball_latitude", gpsLocation.latitude);
             intent.putExtra("ball_longitude", gpsLocation.longitude);
@@ -97,6 +104,8 @@ public class MapsActivity extends FragmentActivity {
             mMap.clear();
             mMap.addMarker(new MarkerOptions().position(latLng));
             markerLocation = latLng;
+            playbutton.setEnabled(true);
+            playbutton.setClickable(true);
           //  markerLocationText = (TextView) findViewById(R.id.markerView);
           //  markerLocationText.setText("Marker coord: " + latLng.latitude + " , " + latLng.longitude);
            // RoutePlanner routePlanner = new RoutePlanner(gpsLocation, markerLocation, RoutePlanner.MODE_WALKING);

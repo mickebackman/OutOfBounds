@@ -11,8 +11,6 @@
     <string name="title_activity_maps">Map</string>
     <string name="maptext">GPS-data will be shown here</string>
     <string name="distance">Distance to hole:</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="swingbutton">Stroke</string>
+    <string name="swingtext">Swing</string>
 </resources>
