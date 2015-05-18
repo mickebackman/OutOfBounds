@@ -1,0 +1,226 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@drawable/bg_blank"
+    tools:context="se.mikaelbackman.outofbounds.Swing">
+
+
+    <!-- Visas när slaget har genomförts-->
+
+
+    <!-- Hela denna relativelayout skall visas innan man trycker på swing-->
+
+    <se.mikaelbackman.outofbounds.ButtonPlus
+        style="@style/button"
+        android:id="@+id/ok_button"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp"
+        android:padding="10dp"
+        android:background="@drawable/holebutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/oktext"
+        android:onClick="sendBallPosition"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_alignParentBottom="true" />
+
+    <RelativeLayout
+        android:id="@+id/beforestrokeview"
+        android:layout_width="match_parent"
+        android:layout_height="428dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="left|top">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/flagicon"
+            android:layout_gravity="center"
+            android:src="@drawable/flag_icon"
+            android:paddingRight="75dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+
+        <se.mikaelbackman.outofbounds.TextViewPlus
+            style="@style/custfont"
+            android:id="@+id/distancetext"
+            android:layout_marginTop="12dp"
+            android:textSize="40sp"
+            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text=""
+            android:layout_alignTop="@+id/flagicon"
+            android:layout_alignBottom="@+id/flagicon"
+            android:layout_toStartOf="@+id/flagicon"
+            android:layout_alignEnd="@+id/flagicon">
+        </se.mikaelbackman.outofbounds.TextViewPlus>
+
+
+
+        <se.mikaelbackman.outofbounds.TextViewPlus
+            style="@style/custfont"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/club"
+            android:id="@+id/club_text"
+            android:layout_marginTop="25dp"
+            android:textSize="50sp"
+            android:textColor="#FFFFFF"
+            android:layout_below="@+id/flagicon"
+            android:layout_centerHorizontal="true">
+
+            </se.mikaelbackman.outofbounds.TextViewPlus>
+
+        <se.mikaelbackman.outofbounds.ButtonPlus
+            style="@style/button"
+            android:id="@+id/driverbutton"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:padding="10dp"
+            android:background="@drawable/holebutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/driver"
+            android:onClick="driverButton"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_below="@+id/ironbutton"
+            android:layout_alignEnd="@+id/distancetext"
+            android:layout_alignStart="@+id/flagicon" />
+
+        <se.mikaelbackman.outofbounds.ButtonPlus
+            style="@style/button"
+            android:id="@+id/wedgebutton"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:padding="10dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/holebutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/wedge"
+            android:onClick="wedgeButton"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_centerVertical="true"
+            android:layout_alignEnd="@+id/distancetext"
+            android:layout_alignStart="@+id/ironbutton" />
+
+        <se.mikaelbackman.outofbounds.ButtonPlus
+            style="@style/button"
+            android:id="@+id/ironbutton"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:padding="10dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/holebutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/iron"
+            android:onClick="ironButton"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_below="@+id/wedgebutton"
+            android:layout_alignStart="@+id/driverbutton"
+            android:layout_alignEnd="@+id/distancetext" />
+
+
+
+    </RelativeLayout>
+
+    <se.mikaelbackman.outofbounds.TextViewPlus
+        style="@style/custfont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/swingtext"
+        android:id="@+id/swingText"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp"
+        android:layout_gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="100dp">
+    </se.mikaelbackman.outofbounds.TextViewPlus>
+
+    <se.mikaelbackman.outofbounds.TextViewPlus
+        style="@style/custfont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/swinginfo"
+        android:id="@+id/swingInfo"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="100dp">
+    </se.mikaelbackman.outofbounds.TextViewPlus>
+
+    <se.mikaelbackman.outofbounds.ButtonPlus
+        style="@style/button"
+        android:id="@+id/readytoswing_button"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp"
+        android:padding="10dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/holebutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/readytoswing"
+        android:onClick="getData"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_alignParentBottom="true" />
+
+    <se.mikaelbackman.outofbounds.ButtonPlus
+        style="@style/button"
+        android:id="@+id/ready_button"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp"
+        android:padding="10dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/holebutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/swingtext"
+        android:onClick="changeButton"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_alignParentBottom="true" />
+
+    <se.mikaelbackman.outofbounds.TextViewPlus
+        style="@style/custfont"
+        android:layout_width="347dp"
+        android:layout_height="392dp"
+        android:text=""
+        android:textColor="#FFFFFF"
+        android:id="@+id/swingView"
+        android:textSize="50sp"
+        android:lineSpacingExtra="15dp"
+        android:layout_marginTop="40dp"
+        android:gravity="center_horizontal"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+    </se.mikaelbackman.outofbounds.TextViewPlus>
+
+
+    <!-- Skall visas när slaget skall göras-->
+
+</FrameLayout>

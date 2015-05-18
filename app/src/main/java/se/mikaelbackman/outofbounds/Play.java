@@ -51,11 +51,15 @@ public class Play extends ActionBarActivity {
 
         // start a new activity that handles AR content
         // TODO: måste göra något med onresume eller liknande, kanske onstop i main activity... får error om rätt layout laddas.
+        int numberOfStrokes = 0;
+        int totalLength = 0;
         Intent intentsend = new Intent(this, ARHandlerActivity.class);
         intentsend.putExtra("balllat", ball_latitude);
         intentsend.putExtra("balllong", ball_longitude);
         intentsend.putExtra("flaglat", flag_latitude);
         intentsend.putExtra("flaglong", flag_longitude);
+        intentsend.putExtra("strokes", numberOfStrokes);
+        intentsend.putExtra("totalLength", totalLength);
         Log.i("GPS_play_sent" , ("Ball lat: " + ball_latitude.toString() + " long: " + ball_longitude.toString() + "\n Flag lat: " + flag_latitude.toString() + " long: " + flag_longitude.toString()));
 
         startActivity(intentsend);

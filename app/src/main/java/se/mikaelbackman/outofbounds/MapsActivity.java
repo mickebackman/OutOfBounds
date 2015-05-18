@@ -41,8 +41,8 @@ public class MapsActivity extends FragmentActivity {
         super.onResume();
         setUpMapIfNeeded();
     }
+
     public void playGolf(View view){
-        //TODO minska ner fragment med storlek på google maps och lägga till text "Place hole"
 
         if ((gpsLocation != null) && (markerLocation != null)) {
             playbutton.setEnabled(false);

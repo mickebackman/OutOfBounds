@@ -9,4 +9,8 @@
         <item name="se.mikaelbackman.outofbounds:font">fonts/headline.TTF</item>
     </style>
 
+    <style name="custfont" parent="@android:style/TextAppearance">
+        <item name="se.mikaelbackman.outofbounds:font">fonts/headline.TTF</item>
+    </style>
+
 </resources>

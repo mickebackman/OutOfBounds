@@ -1,13 +1,9 @@
 package se.mikaelbackman.outofbounds;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.Menu;
@@ -37,7 +33,7 @@ import java.io.File;
 import java.util.concurrent.locks.Lock;
 
 
-public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements SensorsComponentAndroid.Callback, SwingFragment.OnFragmentInteractionListener {
+public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements SensorsComponentAndroid.Callback{
 
 
     private IAnnotatedGeometriesGroup mAnnotatedGeometriesGroup;
@@ -47,11 +43,9 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
     private LLACoordinate ball,flag;
     private IGeometry mFlagGeo, mBallGeo;
     private IRadar mRadar;
-    public TextView distancetext;
     public Button swingbutton;
-    public  FragmentTransaction fragmentTransaction;
-    public FragmentManager fragmentManager;
-    public SwingFragment swingFragment;
+    public int distanceInt, numberOfStrokes, totalLength;
+    public double tempdistance;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +59,8 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         ball_long = intent.getDoubleExtra("balllong", 0);
         flag_lat = intent.getDoubleExtra("flaglat", 0);
         flag_long = intent.getDoubleExtra("flaglong", 0);
+        totalLength = intent.getIntExtra("totalLength", totalLength);
+        numberOfStrokes = intent.getIntExtra("strokes", 0);
            Log.i("GPS_ARHand_rec", ("Ball lat: " + ball_lat + " long: " + ball_long
            + "\n Flag lat: " + flag_lat + " long: " + flag_long));
 
@@ -72,26 +68,10 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         boolean result = metaioSDK.setTrackingConfiguration("GPS");
         MetaioDebug.log("Tracking data loaded: " + result);
 
-      //  distancetext = (TextView) findViewById(R.id.holedistance);
 
         swingbutton = (Button) findViewById(R.id.swingbutton);
         swingbutton.setEnabled(false);
         swingbutton.setClickable(false);
-
-
-
-        if (savedInstanceState == null) {
-            Log.i("FRAGMENT_CREATE", "Create fragment");
-            swingFragment = new SwingFragment();
-            swingFragment.setArguments(getIntent().getExtras());
-            fragmentManager = getFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.fragment_container, swingFragment, "swingFragment");
-
-        //    fragmentTransaction.hide(swingFragment);
-            fragmentTransaction.commit();
-        }
-
 
     }
 
@@ -118,11 +98,20 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
+
+    // Skickar detta till SWING-activity
     public void swingFragment(View view){
-        swingFragment.setPositions(ball_lat, ball_long, flag_lat, flag_long);
-        fragmentTransaction.show(swingFragment);
-        Log.i("FRAGMENT_SHOW", "Fragment trying to show");
-        fragmentTransaction.commit();
+        float distance = (float) MetaioCloudUtils.getDistanceBetweenTwoCoordinates(ball, flag);
+
+        Intent intent = new Intent(this, Swing.class);
+        intent.putExtra("ball_latitude", ball_lat);
+        intent.putExtra("ball_longitude", ball_long);
+        intent.putExtra("flag_latitude", flag_lat);
+        intent.putExtra("flag_longitude", flag_long);
+        intent.putExtra("distance", distance);
+        intent.putExtra("strokes", numberOfStrokes);
+        intent.putExtra("totalLength", totalLength);
+        startActivity(intent);
     }
 
     @Override
@@ -133,36 +122,38 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             SensorValues sensorValues = mSensors.getSensorValues();
             mSensors.getLocation();
 
-           /* if (flag != null) {
+            if (flag != null) {
                 Double doubledist = MetaioCloudUtils.getDistanceBetweenTwoCoordinates(flag, mSensors.getLocation());
-                int dist = (int)(doubledist + 0.5d);
-               //TODO får inte sätta texten för avstånd till hål så här. måste hitta något annat sätt.
+                distanceInt = (int) (doubledist + 0.5d);
+                tempdistance = MetaioCloudUtils.getDistanceBetweenTwoCoordinates(ball, mSensors.getLocation());
 
-              //  distancetext = (TextView) findViewById(R.id.holedistance);
-             //  if (distancetext != null) {
-               //    distancetext.setText("Distance to hole is: " + dist);
-               //}
-            }*/
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
+                        TextView distancetext = (TextView) findViewById(R.id.distancetext);
+                        TextView strokecount = (TextView) findViewById(R.id.strokecount);
+                        Button swingbutton = (Button) findViewById(R.id.swingbutton);
+                        distancetext.setText(distanceInt + "m");
+                        strokecount.setText(numberOfStrokes+"");
+                        if (tempdistance < 5.0d) {
+                            if (swingbutton != null) {
+                                swingbutton.setEnabled(true);
+                                swingbutton.setClickable(true);
+                            }
+                        }
+                        //TODO Avkommentera för att få inaktiverad stroke-knapp
+                       /* else {
+                            if (swingbutton != null) {
+                                swingbutton.setEnabled(false);
+                                swingbutton.setClickable(false);
+                            }
+                        }*/
 
-            // Gör koll om distance < 5 och isåfall aktivera knappen
-          /*  if (ball != null) {
-
-                double tempdistance = MetaioCloudUtils.getDistanceBetweenTwoCoordinates(ball, mSensors.getLocation());
-                if (tempdistance < 5.0d) {
-                    if (swingbutton != null) {
-                        swingbutton.setEnabled(true);
-                        swingbutton.setClickable(true);
                     }
-                }
-                else {
-                    if (swingbutton != null) {
-                        Log.i("BUTTON_DEACTIVATE", "Button deactivated");
-                        swingbutton.setEnabled(false);
-                        swingbutton.setClickable(false);
-                    }
-                }
-            }*/
+
+                });
+            }
 
             float heading = 0.0f;
             if (sensorValues.hasAttitude())
@@ -216,7 +207,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         // Clamp geometries' Z position to range [5000;200000] no matter how close or far they are
         // away.
         // This influences minimum and maximum scaling of the geometries (easier for development).
-        metaioSDK.setLLAObjectRenderingLimits(5, 200);
+        metaioSDK.setLLAObjectRenderingLimits(10, 200);
 
         // Set render frustum accordingly
         metaioSDK.setRendererClippingPlaneLimits(10, 220000);
@@ -297,13 +288,13 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
     {
         final File path =
                 AssetsManager.getAssetPathAsFile(getApplicationContext(),
-                        "ExamplePOI.obj");
+                        "ball.obj");
         if (path != null)
         {
             IGeometry geo = metaioSDK.createGeometry(path);
             geo.setTranslationLLA(lla);
             geo.setLLALimitsEnabled(true);
-            geo.setScale(50);
+            geo.setScale(5);
             return geo;
         }
         else
@@ -402,10 +393,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
 
     }
 
-    @Override
-    public void onFragmentInteraction(Double ball_lat, Double ball_long) {
 
-    }
 
 
     final class MyAnnotatedGeometriesGroupCallback extends AnnotatedGeometriesGroupCallback
@@ -449,13 +437,24 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             float distance = (float) MetaioCloudUtils.getDistanceBetweenTwoCoordinates(location, mSensors.getLocation());
             Log.i("GPS_loadup_dist", "Distance mellan location och mSensor.getlocaion " + distance+ " location: " + location.toString() + ", " + mSensors.getLocation().toString());
             Bitmap thumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            Bitmap ball = BitmapFactory.decodeResource(getResources(), R.drawable.golfball);
             try
             {
-                texture =
-                        ARELInterpreterAndroidJava.getAnnotationImageForPOI(title, title, distance, "0", thumbnail,
-                                null,
-                                metaioSDK.getRenderSize(), ARHandlerActivity.this,
-                                mPaint, inOutCachedBitmaps, inOutCachedAnnotationBackgroundIndex, textureHash);
+                if (title.equals("Ball")) {
+                    texture =
+                            ARELInterpreterAndroidJava.getAnnotationImageForPOI(title, title, distance, "0", ball,
+                                    null,
+                                    metaioSDK.getRenderSize(), ARHandlerActivity.this,
+                                    mPaint, inOutCachedBitmaps, inOutCachedAnnotationBackgroundIndex, textureHash);
+                }
+                else {
+                    texture =
+                            ARELInterpreterAndroidJava.getAnnotationImageForPOI(title, title, distance, "0", thumbnail,
+                                    null,
+                                    metaioSDK.getRenderSize(), ARHandlerActivity.this,
+                                    mPaint, inOutCachedBitmaps, inOutCachedAnnotationBackgroundIndex, textureHash);
+                }
+
             }
             catch (Exception e)
             {
