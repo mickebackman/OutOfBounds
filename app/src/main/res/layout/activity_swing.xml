@@ -137,7 +137,6 @@
             android:layout_alignEnd="@+id/distancetext" />
 
 
-
     </RelativeLayout>
 
     <se.mikaelbackman.outofbounds.TextViewPlus
@@ -158,17 +157,16 @@
     <se.mikaelbackman.outofbounds.TextViewPlus
         style="@style/custfont"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="379dp"
         android:text="@string/swinginfo"
         android:id="@+id/swingInfo"
         android:textColor="#FFFFFF"
         android:textSize="50sp"
-        android:layout_gravity="center"
+        android:layout_gravity="center_horizontal|top"
         android:gravity="center"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="100dp">
+        android:layout_above="@+id/driverbutton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true">
     </se.mikaelbackman.outofbounds.TextViewPlus>
 
     <se.mikaelbackman.outofbounds.ButtonPlus

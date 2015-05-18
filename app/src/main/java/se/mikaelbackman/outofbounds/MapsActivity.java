@@ -1,7 +1,9 @@
 package se.mikaelbackman.outofbounds;
 
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -43,6 +45,8 @@ public class MapsActivity extends FragmentActivity {
     }
 
     public void playGolf(View view){
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(50);
 
         if ((gpsLocation != null) && (markerLocation != null)) {
             playbutton.setEnabled(false);
@@ -98,6 +102,23 @@ public class MapsActivity extends FragmentActivity {
             }
         }
     };
+
+    private GoogleMap.OnMapClickListener myClickListener = new GoogleMap.OnMapClickListener() {
+        @Override
+        public void onMapClick(LatLng latLng) {
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(latLng));
+            markerLocation = latLng;
+            playbutton.setEnabled(true);
+            playbutton.setClickable(true);
+            //  markerLocationText = (TextView) findViewById(R.id.markerView);
+            //  markerLocationText.setText("Marker coord: " + latLng.latitude + " , " + latLng.longitude);
+            // RoutePlanner routePlanner = new RoutePlanner(gpsLocation, markerLocation, RoutePlanner.MODE_WALKING);
+            // drawRoute(routePlanner);
+        }
+    };
+
+
     private GoogleMap.OnMapLongClickListener myLongClickListener = new GoogleMap.OnMapLongClickListener(){
         @Override
         public void onMapLongClick(LatLng latLng) {
@@ -114,6 +135,7 @@ public class MapsActivity extends FragmentActivity {
     };
 
 
+
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
@@ -124,6 +146,7 @@ public class MapsActivity extends FragmentActivity {
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationChangeListener(myLocationChangeListener);
         mMap.setOnMapLongClickListener(myLongClickListener);
+        mMap.setOnMapClickListener(myClickListener);
 
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
     }

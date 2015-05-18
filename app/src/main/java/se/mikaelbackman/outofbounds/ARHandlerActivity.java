@@ -1,9 +1,11 @@
 package se.mikaelbackman.outofbounds;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.Menu;
@@ -61,8 +63,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         flag_long = intent.getDoubleExtra("flaglong", 0);
         totalLength = intent.getIntExtra("totalLength", totalLength);
         numberOfStrokes = intent.getIntExtra("strokes", 0);
-           Log.i("GPS_ARHand_rec", ("Ball lat: " + ball_lat + " long: " + ball_long
-           + "\n Flag lat: " + flag_lat + " long: " + flag_long));
 
         // Set GPS tracking configuration
         boolean result = metaioSDK.setTrackingConfiguration("GPS");
@@ -95,12 +95,19 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
     }
 
     public void onCancelClick(View view){
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(50);
+
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 
     // Skickar detta till SWING-activity
     public void swingFragment(View view){
+
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(50);
+
         float distance = (float) MetaioCloudUtils.getDistanceBetweenTwoCoordinates(ball, flag);
 
         Intent intent = new Intent(this, Swing.class);
@@ -207,7 +214,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         // Clamp geometries' Z position to range [5000;200000] no matter how close or far they are
         // away.
         // This influences minimum and maximum scaling of the geometries (easier for development).
-        metaioSDK.setLLAObjectRenderingLimits(10, 200);
+        metaioSDK.setLLAObjectRenderingLimits(20, 200);
 
         // Set render frustum accordingly
         metaioSDK.setRendererClippingPlaneLimits(10, 220000);
@@ -215,10 +222,8 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
 
 
         ball = new LLACoordinate(ball_lat, ball_long, 0,0);
-        Log.i("GPS_coordinates_ball", ball.toString());
 
         flag = new LLACoordinate(flag_lat, flag_long, 0,0);
-        Log.i("GPS_coordinates_flag", flag.toString());
 
 
 
@@ -294,7 +299,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             IGeometry geo = metaioSDK.createGeometry(path);
             geo.setTranslationLLA(lla);
             geo.setLLALimitsEnabled(true);
-            geo.setScale(5);
+            geo.setScale(3);
             return geo;
         }
         else
@@ -384,7 +389,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
 
     @Override
     public void onLocationSensorChanged(LLACoordinate llaCoordinate) {
-        Log.i("GPS_LOC_CHANGE", "location sensor changed" + llaCoordinate.toString());
         if (mAnnotatedGeometriesGroup != null && mBallGeo != null && mFlagGeo != null) {
             mAnnotatedGeometriesGroup.triggerAnnotationUpdate(mBallGeo);
             mAnnotatedGeometriesGroup.triggerAnnotationUpdate(mFlagGeo);
@@ -419,7 +423,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
         @Override
         public IGeometry loadUpdatedAnnotation(IGeometry geometry, Object userData, IGeometry existingAnnotation)
         {
-            Log.i("GPS_loadup_enter", "Går in i load updatedannotation med userdata " + (String) userData + " existingannotation " + existingAnnotation);
             if (userData == null)
             {
                 return null;
@@ -435,7 +438,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             String title = (String)userData; // as passed to addGeometry
             LLACoordinate location = geometry.getTranslationLLA();
             float distance = (float) MetaioCloudUtils.getDistanceBetweenTwoCoordinates(location, mSensors.getLocation());
-            Log.i("GPS_loadup_dist", "Distance mellan location och mSensor.getlocaion " + distance+ " location: " + location.toString() + ", " + mSensors.getLocation().toString());
             Bitmap thumbnail = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             Bitmap ball = BitmapFactory.decodeResource(getResources(), R.drawable.golfball);
             try
@@ -495,7 +497,6 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
                 }
             }
 
-            Log.i("GPS_loadup_exit", "Går ut i load updatedannotation med userdata " + (String) userData + " existingannotation " + existingAnnotation);
             return resultGeometry;
         }
 

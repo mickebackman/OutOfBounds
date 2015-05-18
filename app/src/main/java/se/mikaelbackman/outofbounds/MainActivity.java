@@ -1,8 +1,10 @@
 package se.mikaelbackman.outofbounds;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,6 +58,10 @@ public class MainActivity extends Activity {
         return true;
     }
     public void chooseHole(View view){
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(50);
+
+        super.onResume();
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }

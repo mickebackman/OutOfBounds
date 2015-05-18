@@ -39,7 +39,6 @@ public class Play extends ActionBarActivity {
         ball_longitude = intent.getDoubleExtra("ball_longitude", 0);
         flag_latitude = intent.getDoubleExtra("flag_latitude", 0);
         flag_longitude = intent.getDoubleExtra("flag_longitude", 0);
-        Log.i("GPS_play_recieved" , ("Ball lat: " + ball_latitude.toString() + " long: " + ball_longitude.toString() + "\n Flag lat: " + flag_latitude.toString() + " long: " + flag_longitude.toString()));
 
 
         // Enable metaio SDK debug log messages based on build configuration
@@ -50,7 +49,6 @@ public class Play extends ActionBarActivity {
         mTask.execute(0);
 
         // start a new activity that handles AR content
-        // TODO: måste göra något med onresume eller liknande, kanske onstop i main activity... får error om rätt layout laddas.
         int numberOfStrokes = 0;
         int totalLength = 0;
         Intent intentsend = new Intent(this, ARHandlerActivity.class);
@@ -60,7 +58,6 @@ public class Play extends ActionBarActivity {
         intentsend.putExtra("flaglong", flag_longitude);
         intentsend.putExtra("strokes", numberOfStrokes);
         intentsend.putExtra("totalLength", totalLength);
-        Log.i("GPS_play_sent" , ("Ball lat: " + ball_latitude.toString() + " long: " + ball_longitude.toString() + "\n Flag lat: " + flag_latitude.toString() + " long: " + flag_longitude.toString()));
 
         startActivity(intentsend);
     }
@@ -109,7 +106,6 @@ public class Play extends ActionBarActivity {
             if (result)
             {
                 // Start AR Activity on success
-                // TODO: är det här den skickar dubbelt?
                 Intent intent = new Intent(getApplicationContext(), ARHandlerActivity.class);
                 intent.putExtra("balllat", ball_latitude);
                 intent.putExtra("balllong", ball_longitude);
@@ -145,6 +141,8 @@ public class Play extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+
+
         if (id == R.id.action_settings) {
             return true;
         }

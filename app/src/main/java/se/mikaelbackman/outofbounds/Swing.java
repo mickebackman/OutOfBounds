@@ -1,6 +1,7 @@
 package se.mikaelbackman.outofbounds;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -11,12 +12,11 @@ import android.location.Location;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Vibrator;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.media.SoundPool.OnLoadCompleteListener;
@@ -61,13 +61,14 @@ public class Swing extends Activity implements SensorEventListener {
     private int driverID;
     private int wedgeID;
     private int ironID;
-    private int applauseID;
+    private int applauseID, winID, intheholeID;
     private int missID;
     private boolean loaded;
     private float distanceToFlag;
     private double balllat, balllong, flaglat, flaglong;
     private int numberOfStrokes;
     private int totalLength;
+    private Vibrator v;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,9 @@ public class Swing extends Activity implements SensorEventListener {
         setContentView(R.layout.activity_swing);
         ballPosition = new Location("GPS_PROVIDER");
         flagPosition = new Location("GPS_PROVIDER");
+
+
+         v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         // Ta emot intent från AR-activity
         Intent intent = getIntent();
@@ -85,11 +89,11 @@ public class Swing extends Activity implements SensorEventListener {
         numberOfStrokes = intent.getIntExtra("strokes", 0);
         totalLength = intent.getIntExtra("totalLength", totalLength);
 
+
         ballPosition.setLatitude(balllat);
         ballPosition.setLongitude(balllong);
         flagPosition.setLatitude(flaglat);
         flagPosition.setLongitude(flaglong);
-        Log.i("BALL_POS", "Ball: " + balllat + " , " + balllong + "    Flag: " + flaglat + " , " + flaglong);
         distanceToFlag = intent.getFloatExtra("distance", 0);
         int distanceInt = (int)(distanceToFlag + 0.5f);
 
@@ -137,6 +141,8 @@ public class Swing extends Activity implements SensorEventListener {
         wedgeID = soundPool.load(this, R.raw.wedge, 1);
         applauseID = soundPool.load(this, R.raw.applause, 1);
         missID = soundPool.load(this, R.raw.miss, 1);
+        intheholeID = soundPool.load(this, R.raw.inthehole, 1);
+        winID = soundPool.load(this, R.raw.win, 1);
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
     }
@@ -165,6 +171,7 @@ public class Swing extends Activity implements SensorEventListener {
         manager.registerListener(this, gravitymeter, SensorManager.SENSOR_DELAY_FASTEST);
     }
     public void ironButton(View view){
+        if (v!=null) v.vibrate(50);
         Button ironbutton = (Button) findViewById(R.id.ironbutton);
         ironbutton.setFocusable(true);
         ironbutton.setFocusableInTouchMode(true);
@@ -179,6 +186,7 @@ public class Swing extends Activity implements SensorEventListener {
 
     }
     public void wedgeButton(View view){
+        if (v!=null) v.vibrate(50);
         Button wedgebutton = (Button) findViewById(R.id.wedgebutton);
         wedgebutton.setFocusable(true);
         wedgebutton.setFocusableInTouchMode(true);
@@ -189,6 +197,7 @@ public class Swing extends Activity implements SensorEventListener {
         swingbutton.setClickable(true);
     }
     public void driverButton(View view){
+        if (v!=null) v.vibrate(50);
 
         Button driverbutton = (Button) findViewById(R.id.driverbutton);
         driverbutton.setFocusable(true);
@@ -208,6 +217,7 @@ public class Swing extends Activity implements SensorEventListener {
         readybutton.setVisibility(View.GONE);
         readybutton.setEnabled(false);
         readybutton.setClickable(false);
+        if (v!=null) v.vibrate(50);
 
         TextView swingInfo = (TextView) findViewById(R.id.swingInfo);
         swingInfo.setVisibility(View.GONE);
@@ -277,23 +287,16 @@ public class Swing extends Activity implements SensorEventListener {
         float impactPenalty = 1f;
         if(differenceGY>1.5 && hit) {
 
-            if(impact!=MISS ) {
-                if (club == DRIVER && loaded) {
-                    soundPool.play(driverID, 1, 1, 1, 0, 1f);
-                    tempclub = "Driver";
-                } else if (club == IRON) {
-                    soundPool.play(ironID, 1,1, 1, 0, 1f);
-                    tempclub = "Iron";
-                } else {
-                    soundPool.play(wedgeID, 1, 1, 1, 0, 1f);
-                    tempclub = "Wedge";
-                }
-            } else {
-                soundPool.play(missID, 1, 1, 1, 0, 1f);
-            }
-            if(impact==PERFECT_HIT) {
-                soundPool.play(applauseID, 1, 1, 1, 0, 1f);
-            }
+            //Ljudet låg här
+
+
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(50);
+
+            if (club == DRIVER) tempclub = "Driver";
+            else if (club == IRON) tempclub = "Iron";
+            else tempclub = "Wedge";
+
 
             swingView.setText(tempclub);
 
@@ -358,20 +361,42 @@ public class Swing extends Activity implements SensorEventListener {
             }
             swingView.append("\n" + distanceInt + "m");
 
+            LLACoordinate flag = new LLACoordinate(flaglat, flaglong, 0, 0);
+
+            //Nytt ljud
+            boolean shallplay = (MetaioCloudUtils.getDistanceBetweenTwoCoordinates(newcord, flag)> 10d);
+            if(impact!=MISS && shallplay) {
+                if (club == DRIVER && loaded) {
+                    soundPool.play(driverID, 1, 1, 1, 0, 1f);
+                } else if (club == IRON && loaded) {
+                    soundPool.play(ironID, 1,1, 1, 0, 1f);
+                } else {
+                    soundPool.play(wedgeID, 1, 1, 1, 0, 1f);
+                }
+            } else if (shallplay){
+                soundPool.play(missID, 1, 1, 1, 0, 1f);
+            }
+            if(impact==PERFECT_HIT && shallplay) {
+                soundPool.play(applauseID, 1, 1, 1, 0, 1f);
+            }
+
             if (newcord != null) {
-                LLACoordinate flag = new LLACoordinate(flaglat, flaglong, 0, 0);
+
                 double doubledist = MetaioCloudUtils.getDistanceBetweenTwoCoordinates(newcord, flag);
 
                 if (doubledist < 10d && flag != null){
 
+                    if (loaded){
+                    soundPool.play(winID, 1, 1, 1, 0, 1f);
+                    soundPool.play(intheholeID, 1, 1, 1, 0, 1f);
+                    }
+
                     Intent winintent = new Intent(this, Win.class);
-                    winintent.putExtra("wintext","In the hole!\nDistance "+ totalLength+"m\nStrokes "+numberOfStrokes);
+                    winintent.putExtra("wintext","In the hole!\nHole Length "+ totalLength+"m\nStrokes "+numberOfStrokes);
                     startActivity(winintent);
                 }
             }
-            //swingView.append("\n " + calculateNewPosition(distance, impact).toString());
 
-            // GÖR en textview här visible och en knapp visible med ok. deaktivera knappen swing och skriv ut avstånd.
         }
     }
     private LLACoordinate calculateNewPosition(double distance, int impact){
@@ -398,6 +423,7 @@ public class Swing extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
     public void changeButton(View view) {
+        if (v!=null) v.vibrate(50);
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.beforestrokeview);
         relativeLayout.setVisibility(View.GONE);
@@ -420,17 +446,18 @@ public class Swing extends Activity implements SensorEventListener {
     }
     public void sendBallPosition(View view){
        // Göra en ny intent och skicka till arhandler
-
+        if (v!=null) v.vibrate(50);
         Intent intent = new Intent(this, ARHandlerActivity.class);
         intent.putExtra("balllat", balllat);
         intent.putExtra("balllong", balllong);
         intent.putExtra("flaglat", flaglat );
         intent.putExtra("flaglong", flaglong);
         intent.putExtra("strokes", numberOfStrokes);
+        intent.putExtra("totalLength", totalLength);
+
         Button okbutton = (Button) findViewById(R.id.ok_button);
         okbutton.setEnabled(false);
         okbutton.setClickable(false);
-        Log.i("INTENT_SENT_SWING", "Ball " + balllat + " , " + balllong);
         startActivity(intent);
     }
 }

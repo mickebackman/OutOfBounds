@@ -1,7 +1,11 @@
 package se.mikaelbackman.outofbounds;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,7 +15,8 @@ import android.widget.TextView;
 
 
 public class Win extends Activity{
-
+     private SoundPool soundPool;
+     private boolean loaded;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +26,22 @@ public class Win extends Activity{
         String wintext = recintent.getStringExtra("wintext");
         TextView text = (TextView) findViewById(R.id.wintext);
         text.setText(wintext);
+
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                loaded = true;
+            }
+        });
+       int intheholeID = soundPool.load(this, R.raw.inthehole, 1);
+       int winID = soundPool.load(this, R.raw.win, 1);
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        if(loaded) {
+            soundPool.play(intheholeID, 1, 1, 1, 0, 1f);
+            soundPool.play(winID, 1, 1, 1, 0, 1f);
+        }
 
     }
 
@@ -34,6 +55,8 @@ public class Win extends Activity{
 
 
     public void finish(View view){
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(50);
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
 
