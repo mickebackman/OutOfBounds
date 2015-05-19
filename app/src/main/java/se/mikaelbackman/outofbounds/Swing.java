@@ -31,7 +31,7 @@ public class Swing extends Activity implements SensorEventListener {
     private static final int MISS =3;
     private static final float WEDGE =0.2f;
     private static final float IRON =0.6f;
-    private static final float DRIVER =1f;
+    private static final float DRIVER =1.1f;
     private static final float MAX_DISTANCE = 250f;
     private SensorManager manager;
     private Sensor accelerometer;
@@ -61,7 +61,7 @@ public class Swing extends Activity implements SensorEventListener {
     private int driverID;
     private int wedgeID;
     private int ironID;
-    private int applauseID, winID, intheholeID;
+    private int applauseID, winID, intheholeID, sliceID, hookID;
     private int missID;
     private boolean loaded;
     private float distanceToFlag;
@@ -143,6 +143,9 @@ public class Swing extends Activity implements SensorEventListener {
         missID = soundPool.load(this, R.raw.miss, 1);
         intheholeID = soundPool.load(this, R.raw.inthehole, 1);
         winID = soundPool.load(this, R.raw.win, 1);
+        sliceID = soundPool.load(this, R.raw.slice, 1);
+        hookID = soundPool.load(this, R.raw.hook, 1);
+
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
     }
@@ -287,8 +290,6 @@ public class Swing extends Activity implements SensorEventListener {
         float impactPenalty = 1f;
         if(differenceGY>1.5 && hit) {
 
-            //Ljudet låg här
-
 
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             v.vibrate(50);
@@ -364,8 +365,11 @@ public class Swing extends Activity implements SensorEventListener {
             LLACoordinate flag = new LLACoordinate(flaglat, flaglong, 0, 0);
 
             //Nytt ljud
-            boolean shallplay = (MetaioCloudUtils.getDistanceBetweenTwoCoordinates(newcord, flag)> 10d);
-            if(impact!=MISS && shallplay) {
+            boolean shallplay = true;
+            if (newcord!= null){
+                shallplay = (MetaioCloudUtils.getDistanceBetweenTwoCoordinates(newcord, flag)> 10d);
+            }
+            if(impact!=MISS) {
                 if (club == DRIVER && loaded) {
                     soundPool.play(driverID, 1, 1, 1, 0, 1f);
                 } else if (club == IRON && loaded) {
@@ -378,6 +382,12 @@ public class Swing extends Activity implements SensorEventListener {
             }
             if(impact==PERFECT_HIT && shallplay) {
                 soundPool.play(applauseID, 1, 1, 1, 0, 1f);
+            }
+            if(impact==SLICE && shallplay){
+                soundPool.play(sliceID, 1, 1, 1, 0, 1f);
+            }
+            if(impact==HOOK && shallplay){
+                soundPool.play(hookID, 1, 1, 1, 0, 1f);
             }
 
             if (newcord != null) {

@@ -104,6 +104,9 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
 
     // Skickar detta till SWING-activity
     public void swingFragment(View view){
+        Button strokebutton = (Button) findViewById(R.id.swingbutton);
+        strokebutton.setClickable(false);
+        strokebutton.setEnabled(false);
 
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         v.vibrate(50);
@@ -143,19 +146,20 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
                         Button swingbutton = (Button) findViewById(R.id.swingbutton);
                         distancetext.setText(distanceInt + "m");
                         strokecount.setText(numberOfStrokes+"");
-                        if (tempdistance < 5.0d) {
+                        if (tempdistance < 10.0d) {
                             if (swingbutton != null) {
                                 swingbutton.setEnabled(true);
                                 swingbutton.setClickable(true);
                             }
                         }
                         //TODO Avkommentera för att få inaktiverad stroke-knapp
-                       /* else {
+                     /*  else {
                             if (swingbutton != null) {
                                 swingbutton.setEnabled(false);
                                 swingbutton.setClickable(false);
                             }
                         }*/
+
 
                     }
 
@@ -175,6 +179,7 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
             }
 
             // Geometrices för locations. Kanske inte sätter värdena här ens.
+
             IGeometry geos[] = new IGeometry[] {mFlagGeo,mBallGeo};
             Rotation rot = new Rotation((float)(Math.PI / 2.0), 0.0f, -heading);
             for (IGeometry geo : geos)

@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 
 public class Win extends Activity{
-     private SoundPool soundPool;
-     private boolean loaded;
+     //private SoundPool soundPool;
+     //private boolean loaded;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,8 +27,9 @@ public class Win extends Activity{
         TextView text = (TextView) findViewById(R.id.wintext);
         text.setText(wintext);
 
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+
+       /*  soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+       soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
                 loaded = true;
@@ -42,7 +43,7 @@ public class Win extends Activity{
             soundPool.play(intheholeID, 1, 1, 1, 0, 1f);
             soundPool.play(winID, 1, 1, 1, 0, 1f);
         }
-
+*/
     }
 
 

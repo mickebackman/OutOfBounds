@@ -13,6 +13,7 @@
     <string name="distance">Distance to hole:</string>
     <string name="swingbutton">Stroke</string>
     <string name="swingtext">Swing</string>
+    <string name="swingtext2">Swing!</string>
     <string name="oktext">Continue</string>
     <string name="title_activity_swing">Swing</string>
     <string name="driver">Driver</string>
