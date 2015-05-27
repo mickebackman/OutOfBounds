@@ -153,12 +153,12 @@ public class ARHandlerActivity extends com.metaio.sdk.ARViewActivity implements 
                             }
                         }
                         //TODO Avkommentera för att få inaktiverad stroke-knapp
-                     /*  else {
+                      else {
                             if (swingbutton != null) {
                                 swingbutton.setEnabled(false);
                                 swingbutton.setClickable(false);
                             }
-                        }*/
+                        }
 
 
                     }
